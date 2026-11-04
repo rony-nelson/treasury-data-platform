@@ -34,19 +34,23 @@ def load(path: Path) -> list[dict]:
 
 def reconcile(statement: list[dict], ledger: list[dict]) -> list[dict]:
     results: list[dict] = []
+    duplicated: set[str] = set()  # Day 2 fix: a duplicated doc is a break, never MATCHED
 
     for side, rows in (("statement", statement), ("ledger", ledger)):
         counts = Counter(r["doc_id"] for r in rows)
         for doc_id, n in counts.items():
             if n > 1:
+                duplicated.add(doc_id)
                 results.append({"doc_id": doc_id, "status": "DUPLICATE",
                                 "statement_amount": "", "ledger_amount": "",
                                 "difference": "", "note": f"{n}x in {side}"})
 
     stmt = {r["doc_id"]: r for r in statement}
     ledg = {r["doc_id"]: r for r in ledger}
-
+    
     for doc_id in sorted(stmt.keys() | ledg.keys()):
+        if doc_id in duplicated:
+            continue  # already reported as DUPLICATE above
         s, g = stmt.get(doc_id), ledg.get(doc_id)
         if s and g:
             diff = s["amount"] - g["amount"]
