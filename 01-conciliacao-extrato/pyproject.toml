@@ -1,0 +1,10 @@
+[project]
+name = "conciliacao-extrato"
+version = "0.2.0"
+description = "Bank statement x general ledger reconciliation (synthetic data)"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "scripts"]
+addopts = "-q"
